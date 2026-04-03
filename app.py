@@ -172,33 +172,6 @@ def profile():
     conn.close()
     
     return render_template('profile.html', user_email=user['email'])
-   
-
-# --- ADMIN MODULE ---
-
-@app.route('/admin')
-def admin():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        flash('Access Denied: Admins Only', 'danger')
-        return redirect(url_for('dashboard'))
-
-    conn = get_db_connection()
-    users = conn.execute('SELECT id, name, email, role FROM users WHERE role != "admin"').fetchall()
-    all_sales = conn.execute('''SELECT sales.*, users.name as user_name 
-                                FROM sales JOIN users ON sales.user_id = users.id 
-                                ORDER BY sales.id DESC LIMIT 50''').fetchall()
-    conn.close()
-    
-    return render_template('admin.html', users=users, all_sales=all_sales)
-
-@app.route('/admin/delete_user/<int:id>')
-def delete_user(id):
-    if session.get('role') == 'admin':
-        with get_db_connection() as conn:
-            conn.execute('DELETE FROM users WHERE id = ?', (id,))
-            conn.execute('DELETE FROM sales WHERE user_id = ?', (id,)) 
-            conn.commit()
-    return redirect(url_for('admin'))
 
 # --- ERROR HANDLING ---
 
