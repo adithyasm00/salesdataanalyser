@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% include 'navbar.html' %}
+<title>Login</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: linear-gradient(to right, #0f172a, #1e3a8a);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 300px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0f172a;
+}
+
+.error {
+    color: red;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Login</h2>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <p class="error">{{ messages[0] }}</p>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/login" onsubmit="return validateForm()">
+        <input type="email" id="email" name="email" placeholder="Enter Email" required>
+        <input type="password" id="password" name="password" placeholder="Enter Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <p style="text-align:center; margin-top:10px;">
+    Don't have an account? <a href="/register">Register</a>
+</p>
+</div>
+
+<script>
+function validateForm() {
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
+
+    if (email === "" || password === "") {
+        alert("All fields are required!");
+        return false;
+    }
+
+    if (password.length < 4) {
+        alert("Password must be at least 4 characters");
+        return false;
+    }
+
+    return true;
+}
+</script>
+
+</body>
+</html>

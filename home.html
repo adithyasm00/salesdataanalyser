@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sales Analyzer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin:0;
+  font-family: Arial;
+}
+
+/* NAVBAR */
+.navbar {
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  background:#0f172a;
+  color:white;
+  padding:15px 30px;
+}
+
+.navbar a {
+  color:white;
+  text-decoration:none;
+  margin:0 10px;
+}
+
+.btn {
+  background:#3b82f6;
+  padding:8px 15px;
+  border-radius:5px;
+}
+
+/* HERO */
+.hero {
+  height:90vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background: linear-gradient(to right, #1e3a8a, #0f172a);
+  color:white;
+  text-align:center;
+}
+
+.hero h1 {
+  font-size:40px;
+}
+
+.hero p {
+  max-width:600px;
+}
+
+/* SECTIONS */
+.section {
+  padding:50px 20px;
+  text-align:center;
+}
+
+.cards {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:20px;
+}
+
+.card {
+  width:250px;
+  padding:20px;
+  background:#f1f5f9;
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* CONTACT */
+input, textarea {
+  width:80%;
+  padding:10px;
+  margin:10px 0;
+}
+
+button {
+  padding:10px 20px;
+  background:#3b82f6;
+  color:white;
+  border:none;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .cards {
+    flex-direction:column;
+    align-items:center;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <h2>📊 Sales Analyzer</h2>
+  <div>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+    <a href="/login" class="btn">Login</a>
+    <a href="/register" class="btn">Register</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Analyze Your Sales Smartly</h1>
+  <p>Track, manage, and visualize your business data with powerful analytics tools.</p>
+  <a href="/register" class="btn">Get Started</a>
+</div>
+
+<!-- ABOUT -->
+<div class="section" id="about">
+  <h2>About Us</h2>
+  <p>We help businesses make better decisions using data-driven insights.</p>
+
+  <div class="cards">
+    <div class="card">
+      <h3>📊 Analytics</h3>
+      <p>Interactive charts and insights</p>
+    </div>
+    <div class="card">
+      <h3>📁 Reports</h3>
+      <p>Download detailed reports</p>
+    </div>
+    <div class="card">
+      <h3>⚡ Fast</h3>
+      <p>Quick and responsive system</p>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="section" id="contact">
+  <h2>Contact Us</h2>
+
+  <form>
+    <input placeholder="Your Name">
+    <input placeholder="Email">
+    <textarea placeholder="Message"></textarea>
+    <br>
+    <button>Send</button>
+  </form>
+</div>
+
+</body>
+</html>
