@@ -2,8 +2,12 @@ import os
 import sqlite3
 import pandas as pd
 import numpy as np
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify,send_file
 from werkzeug.security import generate_password_hash, check_password_hash
+import csv
+from io import StringIO
+from flask import make_response, session
+
 
 app = Flask(__name__)
 app.secret_key = 'high_level_sales_analyzer_secret_key'
@@ -55,9 +59,48 @@ def init_db():
                          ('System Admin', 'admin@sales.com', admin_pwd, 'admin'))
         conn.commit()
 
-# Run DB initialization every time the app starts to ensure schema is correct
-init_db()
 
+init_db()
+#csv
+
+@app.route('/export_csv')
+def export_csv():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']   
+
+    conn = get_db_connection()
+
+    df = pd.read_sql_query("""
+        SELECT date, product, category, total 
+        FROM sales
+        WHERE user_id = ?
+    """, conn, params=(user_id,))   
+
+    conn.close()
+
+    # Format date
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    df['date'] = df['date'].dt.strftime('%Y-%m-%d')
+
+    # Rename columns
+    df.rename(columns={
+        'date': 'Date',
+        'product': 'Product',
+        'category': 'Category',
+        'total': 'Total ($)'
+    }, inplace=True)
+
+    # Convert to CSV
+    output = StringIO()
+    df.to_csv(output, index=False)
+
+    response = make_response(output.getvalue())
+    response.headers["Content-Disposition"] = "attachment; filename=sales_report.csv"
+    response.headers["Content-type"] = "text/csv"
+
+    return response
 # --- AUTHENTICATION ROUTES ---
 
 @app.route('/')
@@ -122,6 +165,7 @@ def dashboard():
     user_id = session['user_id']
     conn = get_db_connection()
 
+    # HANDLE FORM SUBMISSION
     if request.method == 'POST':
         try:
             product = request.form['product']
@@ -131,36 +175,61 @@ def dashboard():
             qty = int(request.form['qty'])
             total = round(rate * qty, 2)
 
-            conn.execute('''INSERT INTO sales (user_id, product, category, date, rate, quantity, total) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?)''', 
-                         (user_id, product, category, date, rate, qty, total))
+            conn.execute('''
+                INSERT INTO sales (user_id, product, category, date, rate, quantity, total) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (user_id, product, category, date, rate, qty, total))
+
             conn.commit()
+            flash("Data added successfully!", "success")
+
+            return redirect(url_for('dashboard'))
+
         except Exception as e:
             flash(f"Error saving data: {str(e)}", "danger")
 
-    sales_data = conn.execute('SELECT * FROM sales WHERE user_id = ? ORDER BY date DESC', (user_id,)).fetchall()
-    df = pd.DataFrame([dict(row) for row in sales_data])
+    # FETCH DATA
+    sales_data = conn.execute(
+        'SELECT * FROM sales WHERE user_id = ? ORDER BY date DESC',
+        (user_id,)
+    ).fetchall()
+
     conn.close()
 
-    stats = {'total_revenue': 0, 'top_product': 'N/A', 'count': 0}
-    
+    # CREATE DATAFRAME
+    df = pd.DataFrame([dict(row) for row in sales_data])
+
+    # IMPORTANT FIX (DATA CLEANING)
     if not df.empty:
-        stats['total_revenue'] = np.round(df['total'].sum(), 2)
-        stats['top_product'] = df.groupby('product')['total'].sum().idxmax()
-        stats['count'] = len(df)
+        df['total'] = pd.to_numeric(df['total'], errors='coerce').fillna(0)
 
-    # Note: We send 'sales' to the template to match the JavaScript logic provided earlier
-    return render_template('dashboard.html', stats=stats, sales=df.to_dict('records'))
+    # DEFAULT STATS
+    stats = {
+        'total_revenue': 0,
+        'top_product': 'N/A',
+        'count': 0,
+        'profit': 0
+    }
 
-@app.route('/delete_sale/<int:id>')
-def delete_sale(id):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    
-    with get_db_connection() as conn:
-        conn.execute('DELETE FROM sales WHERE id = ? AND user_id = ?', (id, session['user_id']))
-        conn.commit()
-    return redirect(url_for('dashboard'))
+    #  CALCULATE STATS
+    if not df.empty:
+        total_revenue = np.round(df['total'].sum(), 2)
+        top_product = df.groupby('product')['total'].sum().idxmax()
+        count = len(df)
+        profit = round(total_revenue * 0.3, 2)
+
+        stats = {
+            "total_revenue": total_revenue,
+            "top_product": top_product,
+            "count": count,
+            "profit": profit
+        }
+
+    return render_template(
+        'dashboard.html',
+        stats=stats,
+        sales=df.to_dict(orient='records')  
+    )
 
 @app.route('/profile')
 def profile():
@@ -172,12 +241,15 @@ def profile():
     conn.close()
     
     return render_template('profile.html', user_email=user['email'])
+   
+
+
 
 # --- ERROR HANDLING ---
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('home.html'), 404 # Redirect to home on 404
+    return render_template('home.html'), 404 
 @app.route('/update_profile', methods=['POST'])
 def update_profile():
     if 'user_id' not in session:
@@ -194,7 +266,7 @@ def update_profile():
         conn.commit()
         conn.close()
         
-        # Update the session name so the sidebar/navbar updates immediately
+       
         session['name'] = new_name
         flash('Profile updated successfully!', 'success')
     except Exception as e:
@@ -217,7 +289,7 @@ def change_password():
         return redirect(url_for('profile'))
 
     if new_pass == confirm_pass:
-        # Securely hash the password before saving
+        
         hashed_pw = generate_password_hash(new_pass)
         
         conn = get_db_connection()
