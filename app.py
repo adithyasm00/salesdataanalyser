@@ -101,6 +101,24 @@ def export_csv():
     response.headers["Content-type"] = "text/csv"
 
     return response
+@app.route('/delete_sale/<int:id>')
+def delete_sale(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+
+    # ✅ Ensure user deletes only their own data (IMPORTANT)
+    conn.execute(
+        'DELETE FROM sales WHERE id = ? AND user_id = ?',
+        (id, session['user_id'])
+    )
+
+    conn.commit()
+    conn.close()
+
+    flash('Record deleted successfully!', 'success')
+    return redirect(url_for('dashboard'))
 # --- AUTHENTICATION ROUTES ---
 
 @app.route('/')
