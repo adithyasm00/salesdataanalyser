@@ -125,16 +125,17 @@
                            <tbody>
     {% for row in sales %}
     <tr>
-        <td>{{ row.date }}</td>
-        <td>{{ row.product }}</td>
-        <td><span class="badge">{{ row.category }}</span></td>
-        <td>{{ row.total }}</td>
-        <td>
-            <a href="/delete_sale/{{ row.id }}" class="delete-btn" onclick="return confirm('Delete this record?')">
-                <i class="fas fa-trash"></i>
-            </a>
-        </td>
-    </tr>
+    <td>{{ row.date }}</td>
+    <td>{{ row.product }}</td>
+    <td><span class="badge">{{ row.category }}</span></td>
+    <td>{{ row.total }}</td>
+    <td>
+   <button class="delete-btn" data-id="{{ row.id }}">
+    <i class="fas fa-trash"></i>
+    </button>
+</td>
+
+</tr>
     {% else %}
     <tr>
         <td colspan="5">
@@ -155,7 +156,17 @@
     </div>
 
     <div id="sales-data-bridge" data-sales='{{ sales | tojson | safe }}' style="display: none;"></div>
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>Delete Record?</h3>
+        <p>This action cannot be undone.</p>
 
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <a id="confirmDeleteBtn" href="#" class="btn-delete">Delete</a>
+        </div>
+    </div>
+</div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -191,9 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
 
-    // ===============================
-    // 🔥 BAR CHART (GRADIENT + MODERN)
-    // ===============================
+   
     const barCtx = document.getElementById('productBarChart').getContext('2d');
 
     const barGradient = barCtx.createLinearGradient(0, 0, 0, 400);
@@ -234,10 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-
-    // ===============================
-    // 🔥 LINE CHART (SMOOTH + GLOW)
-    // ===============================
+   
     const lineCtx = document.getElementById('mainSalesChart').getContext('2d');
 
     const lineGradient = lineCtx.createLinearGradient(0, 0, 0, 300);
@@ -327,4 +333,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
+let deleteId = null;
+
+function openDeleteModal(id) {
+    deleteId = id;
+    document.getElementById("deleteModal").style.display = "flex";
+    document.getElementById("confirmDeleteBtn").href = "/delete_sale/" + id;
+}
+
+function closeDeleteModal() {
+    document.getElementById("deleteModal").style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const id = this.getAttribute("data-id");
+            openDeleteModal(id);
+        });
+    });
+
+});
+
 </script>
