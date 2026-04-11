@@ -1,155 +1,168 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Sales Analyzer</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body {
-  margin:0;
-  font-family: Arial;
-}
-
-/* NAVBAR */
-.navbar {
-  display:flex;
-  justify-content: space-between;
-  align-items:center;
-  background:#0f172a;
-  color:white;
-  padding:15px 30px;
-}
-
-.navbar a {
-  color:white;
-  text-decoration:none;
-  margin:0 10px;
-}
-
-.btn {
-  background:#3b82f6;
-  padding:8px 15px;
-  border-radius:5px;
-}
-
-/* HERO */
-.hero {
-  height:90vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  background: linear-gradient(to right, #1e3a8a, #0f172a);
-  color:white;
-  text-align:center;
-}
-
-.hero h1 {
-  font-size:40px;
-}
-
-.hero p {
-  max-width:600px;
-}
-
-/* SECTIONS */
-.section {
-  padding:50px 20px;
-  text-align:center;
-}
-
-.cards {
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:20px;
-}
-
-.card {
-  width:250px;
-  padding:20px;
-  background:#f1f5f9;
-  border-radius:10px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.1);
-}
-
-/* CONTACT */
-input, textarea {
-  width:80%;
-  padding:10px;
-  margin:10px 0;
-}
-
-button {
-  padding:10px 20px;
-  background:#3b82f6;
-  color:white;
-  border:none;
-}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-  .cards {
-    flex-direction:column;
-    align-items:center;
-  }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalesAnalyzer | Intelligence for Modern Teams</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
 </head>
+<body class="home-page">
 
-<body>
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <a href="/" class="logo dark">Sales<span>Analyzer</span></a>
+            <div class="nav-links" id="navLinks">
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <div class="nav-auth">
+                    <a href="/login" class="link-btn">Sign In</a>
+                    <a href="/register" class="primary-btn-sm">Get Started</a>
+                </div>
+            </div>
+            <div class="mobile-toggle" id="mobileToggle"><i class="fas fa-bars"></i></div>
+        </div>
+    </nav>
 
-<!-- NAVBAR -->
-<div class="navbar">
-  <h2>📊 Sales Analyzer</h2>
-  <div>
-    <a href="#about">About</a>
-    <a href="#contact">Contact</a>
-    <a href="/login" class="btn">Login</a>
-    <a href="/register" class="btn">Register</a>
-  </div>
-</div>
+    <section class="hero-section">
+        <div class="hero-container container">
+      
+            <h1>Turn your sales data into <span class="gradient-text">actionable intelligence</span></h1>
+            <p>The all-in-one platform for modern sales teams to track revenue, visualize trends, and scale operations with absolute confidence.</p>
+            <div class="hero-cta">
+                <a href="/register" class="primary-btn-lg">Start for Free</a>
+                <a href="#features" class="secondary-btn-lg">See Features</a>
+            </div>
+        </div>
+        </section>
+           <section class="section about-premium" id="about">
+    <div class="container about-container">
 
-<!-- HERO -->
-<div class="hero">
-  <h1>Analyze Your Sales Smartly</h1>
-  <p>Track, manage, and visualize your business data with powerful analytics tools.</p>
-  <a href="/register" class="btn">Get Started</a>
-</div>
+        <!-- LEFT CONTENT -->
+        <div class="about-text">
+            <span class="sub-title">About Us</span>
+            <h2>Powering the future of <span class="gradient-text">sales intelligence</span></h2>
 
-<!-- ABOUT -->
-<div class="section" id="about">
-  <h2>About Us</h2>
-  <p>We help businesses make better decisions using data-driven insights.</p>
+            <p>
+                SalesAnalyzer helps modern teams unlock insights from their data.
+                Track performance and scale your business with confidence using powerful analytics.
+            </p>
 
-  <div class="cards">
-    <div class="card">
-      <h3>📊 Analytics</h3>
-      <p>Interactive charts and insights</p>
+            <div class="about-points">
+                <div class="point">
+                    <i class="fas fa-bolt"></i>
+                    <span>Real-time analytics dashboard</span>
+                </div>
+                <div class="point">
+                    <i class="fas fa-brain"></i>
+                    <span>Interactive Visualizations</span>
+                </div>
+                <div class="point">
+                    <i class="fas fa-file-export"></i>
+                    <span>Smart export & reporting tools</span>
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div class="about-stats">
+                <div class="stat-box">
+                    <h3>100+</h3>
+                    <p>Active Users</p>
+                </div>
+                <div class="stat-box">
+                    <h3>₹1M+</h3>
+                    <p>Revenue Tracked</p>
+                </div>
+                <div class="stat-box">
+                    <h3>99%</h3>
+                    <p>Accuracy</p>
+                </div>
+            </div>
+        </div>
+
+        
     </div>
-    <div class="card">
-      <h3>📁 Reports</h3>
-      <p>Download detailed reports</p>
-    </div>
-    <div class="card">
-      <h3>⚡ Fast</h3>
-      <p>Quick and responsive system</p>
-    </div>
-  </div>
-</div>
+</section>
+        
 
-<!-- CONTACT -->
-<div class="section" id="contact">
-  <h2>Contact Us</h2>
+    <section class="section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="sub-title">Core Capabilities</span>
+                <h2>Everything you need to scale</h2>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="f-card">
+                    <div class="icon-box-wrapper pie">
+                        <div class="icon-box"><i class="fas fa-chart-pie"></i></div>
+                        <div class="icon-glow"></div>
+                    </div>
+                    <h3>Advanced Visuals</h3>
+                    <p>Real-time interactive charts that make complex sales data easy to synthesize at a single glance.</p>
+                </div>
+                <div class="f-card">
+                    <div class="icon-box-wrapper bolt">
+                        <div class="icon-box"><i class="fas fa-bolt"></i></div>
+                        <div class="icon-glow"></div>
+                    </div>
+                    <h3>Instant Sync</h3>
+                    <p>Log a sale in NY and your global dashboard in London updates in milliseconds, across all devices.</p>
+                </div>
+                <div class="f-card">
+                    <div class="icon-box-wrapper csv">
+                        <div class="icon-box"><i class="fas fa-file-csv"></i></div>
+                        <div class="icon-glow"></div>
+                    </div>
+                    <h3>Smart Export</h3>
+                    <p>Generate precise, professional CSV reports tailored perfectly to your specific date ranges.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <form>
-    <input placeholder="Your Name">
-    <input placeholder="Email">
-    <textarea placeholder="Message"></textarea>
-    <br>
-    <button>Send</button>
-  </form>
-</div>
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-box">
+                <div class="cta-content">
+                    <h2>Ready to skyrocket your sales velocity?</h2>
+                    <p>Join over 100+ high-growth businesses using SalesAnalyzer every day.</p>
+                </div>
+                <div class="cta-actions">
+                    <a href="/register" class="white-btn-lg">Create Free Account</a>
+                </div>
+                <div class="cta-glow"></div>
+            </div>
+        </div>
+    </section>
 
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p class="copyright">&copy; 2026 SalesAnalyzer Inc. Intelligently made for modern sales.</p>
+                <div class="socials">
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            const icon = mobileToggle.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        });
+    </script>
 </body>
 </html>
