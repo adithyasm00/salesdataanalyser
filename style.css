@@ -225,11 +225,111 @@ body {
     color: var(--primary);
     border-radius: 12px;
 }
+/* ============================= */
+/* 🔥 SALES DATA FORM FINAL FIX */
+/* ============================= */
+
+.entry-card {
+    background: linear-gradient(145deg, #ffffff, #f1f5f9);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+/* GRID LAYOUT (PERFECT ALIGNMENT) */
 .entry-form .form-row {
+    display: grid;
+    grid-template-columns: 
+        1.3fr   /* Product */
+        1fr     /* Category */
+        1fr     /* Date */
+        0.9fr   /* Cost */
+        0.9fr   /* Selling */
+        0.7fr   /* Qty */
+        auto;   /* Button */
+        
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+}
+
+/* INPUT FIX */
+.entry-form input,
+.entry-form select {
+    width: 100%;
+    min-width: 0; /* prevents overflow */
+    height: 42px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    font-size: 14px;
+    background: #f9fafb;
+    transition: 0.2s;
+}
+
+/* INPUT FOCUS */
+.entry-form input:focus,
+.entry-form select:focus {
+    border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    outline: none;
+}
+
+/* BUTTON FIX */
+.entry-form .btn-primary {
+    height: 42px;
+    white-space: nowrap;
+    padding: 0 15px;
+    border-radius: 10px;
+}
+
+/* ============================= */
+/* 📱 RESPONSIVE DESIGN */
+/* ============================= */
+
+@media (max-width: 1200px) {
+    .entry-form .form-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .entry-form .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================= */
+/* 🛡️ SAFETY (SCROLL IF NEEDED) */
+/* ============================= */
+
+.entry-form {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* ============================= */
+/* ✨ OPTIONAL UI IMPROVEMENTS */
+/* ============================= */
+
+.entry-form input::placeholder {
+    color: #9ca3af;
+}
+
+.entry-card h3 {
     display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-top: 15px;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Smooth hover */
+.entry-card {
+    transition: 0.3s;
+}
+
+.entry-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.08);
 }
 .entry-form input, .entry-form select {
     flex: 1;
@@ -915,4 +1015,233 @@ input:focus {
 }
 table td:last-child {
     text-align: center;
+}
+
+
+.btn-primary {
+    grid-column: span 1;
+    height: 42px;
+}
+.entry-form {
+    width: 100%;
+}
+
+/* FIRST ROW (MAIN INPUTS) */
+.entry-form .form-row {
+    display: grid;
+    grid-template-columns: 
+        1.5fr   /* Product */
+        1.2fr   /* Category */
+        1.2fr   /* Date */
+        1fr     /* Cost */
+        1fr;    /* Selling */
+
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+/* SECOND ROW (QTY + BUTTON) */
+.entry-form .form-row-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* INPUT STYLING */
+.entry-form input,
+.entry-form select {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    font-size: 14px;
+    background: #f9fafb;
+    transition: 0.2s;
+}
+
+/* INPUT FOCUS */
+.entry-form input:focus,
+.entry-form select:focus {
+    border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    outline: none;
+}
+
+/* BUTTON */
+.entry-form .btn-primary {
+    height: 42px;
+    width: 100%;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .entry-form .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .entry-form .form-row-bottom {
+        grid-template-columns: 1fr;
+    }
+}
+.entry-card {
+    padding: 25px 30px;
+}
+
+.entry-card h3 {
+    margin-bottom: 18px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.entry-form {
+    margin-top: 8px;
+}
+.edit-btn {
+    color: #2563eb;
+    margin-right: 10px;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.edit-btn:hover {
+    transform: scale(1.2);
+}
+.edit-btn {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 14px rgba(79, 70, 229, 0.4);
+}
+
+.edit-btn i {
+    font-size: 14px;
+}
+/* ===== MODAL OVERLAY ===== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(15, 23, 42, 0.6); /* dark blur bg */
+    backdrop-filter: blur(8px);
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 999;
+}
+
+/* ===== MODAL BOX ===== */
+.modal-box {
+    background: #ffffff;
+    padding: 30px 25px;
+    width: 380px;
+    border-radius: 18px;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+
+    animation: popIn 0.3s ease;
+}
+
+/* Animation */
+@keyframes popIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ===== TITLE ===== */
+.modal-box h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* ===== INPUT FIELDS ===== */
+.modal-box input,
+.modal-box select {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+
+    font-size: 0.95rem;
+    outline: none;
+
+    transition: all 0.2s ease;
+}
+
+.modal-box input:focus,
+.modal-box select:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+/* ===== BUTTONS ===== */
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+/* Cancel Button */
+.btn-cancel {
+    background: #e5e7eb;
+    color: #374151;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-cancel:hover {
+    background: #d1d5db;
+}
+
+/* Update Button */
+.modal-box .btn-primary {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+
+    transition: 0.2s;
+}
+
+.modal-box .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(79, 70, 229, 0.3);
 }
