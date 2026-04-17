@@ -157,8 +157,8 @@
 
         <!-- 🗑️ DELETE BUTTON -->
         <button class="delete-btn" data-id="{{ row.id }}">
-            <i class="fas fa-trash"></i>
-        </button>
+    <i class="fas fa-trash"></i>
+</button>
 
     </td>
 </tr>
@@ -187,11 +187,20 @@
         <h3>Delete Record?</h3>
         <p>This action cannot be undone.</p>
 
-        <div class="modal-actions">
-            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
-            <a id="confirmDeleteBtn" href="#" class="btn-delete">Delete</a>
-        </div>
+        <!-- 🔥 MODAL BUTTONS -->
+        <form id="deleteForm" method="POST">
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeDeleteModal()">
+                    Cancel
+                </button>
+                <button type="submit" class="btn-delete">
+                    Delete
+                </button>
+            </div>
+        </form>
+
     </div>
+</div>
 </div>
 <div id="editModal" class="modal-overlay">
     <div class="modal-box">
@@ -229,6 +238,11 @@
     </div>
 </div>
 <script>
+    function openDeleteModal(id) {
+    document.getElementById("deleteModal").style.display = "flex";
+    document.getElementById("deleteForm").action = "/delete_sale/" + id;
+}
+
     let mainChart, categoryChart, productChart;
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -391,17 +405,7 @@ new Chart(lineCtx, {
 
 });
 
-let deleteId = null;
 
-function openDeleteModal(id) {
-    deleteId = id;
-    document.getElementById("deleteModal").style.display = "flex";
-    document.getElementById("confirmDeleteBtn").href = "/delete_sale/" + id;
-}
-
-function closeDeleteModal() {
-    document.getElementById("deleteModal").style.display = "none";
-}
 // ================= EDIT + DELETE LOGIC =================
 document.addEventListener("DOMContentLoaded", function () {
 
