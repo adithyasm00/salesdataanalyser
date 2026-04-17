@@ -70,23 +70,32 @@
                 <section class="card entry-card" style="margin-top: 25px;">
                     <h3><i class="fas fa-edit"></i> Sales Data</h3>
                     <form method="POST" class="entry-form">
-                        <div class="form-row">
-                            <input type="text" name="product" placeholder="Product Name" required>
-                            <select name="category" required>
-                                <option value="" disabled selected>Category</option>
-                                <option>Electronics</option>
-                                <option>Clothing</option>
-                                <option>Food & Bev</option>
-                                <option>Services</option>
-                            </select>
-                            <input type="date" name="date" required>
-                            <input type="number" name="rate" placeholder="Rate" step="0.01" required>
-                            <input type="number" name="qty" placeholder="Qty" required>
-                            <button type="submit" class="btn-primary">Add</button>
-                        </div>
-                    </form>
-                </section>
+                       <div class="form-row">
+    <input type="text" name="product" placeholder="Product Name" required>
 
+    <select name="category" required>
+        <option value="" disabled selected>Category</option>
+        <option>Electronics</option>
+        <option>Clothing</option>
+        <option>Food</option>
+        <option>Home&Living</option>
+        <option>Stationery</option>
+        <option>Personal Care</option>
+    </select>
+
+    <input type="date" name="date" required>
+
+    <!-- NEW FIELD -->
+    <input type="number" name="cost_price" placeholder="Cost Price" step="0.01" required>
+
+    <input type="number" name="rate" placeholder="Selling Price" step="0.01" required>
+
+    <input type="number" name="qty" placeholder="Qty" required>
+
+    <button type="submit" class="btn-primary">Add</button>
+</div>
+</form>
+</section>
                 <div class="visuals-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 25px;">
                     <div class="card chart-container">
     <h3>Monthly Sales Growth</h3>
@@ -123,30 +132,47 @@
                                 </tr>
                             </thead>
                            <tbody>
-    {% for row in sales %}
-    <tr>
+{% for row in sales %}
+<tr id="row-{{ row.id }}">
     <td>{{ row.date }}</td>
     <td>{{ row.product }}</td>
     <td><span class="badge">{{ row.category }}</span></td>
     <td>{{ row.total }}</td>
-    <td>
-   <button class="delete-btn" data-id="{{ row.id }}">
-    <i class="fas fa-trash"></i>
-    </button>
-</td>
 
+    <td style="display: flex; gap: 10px; align-items: center;">
+
+        <!-- ✏️ EDIT BUTTON -->
+        <button class="edit-btn"
+            onclick="openEditModal(
+                '{{ row.id }}',
+                '{{ row.product | escape }}',
+                '{{ row.category }}',
+                '{{ row.date }}',
+                '{{ row.cost_price }}',
+                '{{ row.rate }}',
+                '{{ row.quantity }}'
+            )">
+            <i class="fas fa-pen"></i>
+        </button>
+
+        <!-- 🗑️ DELETE BUTTON -->
+        <button class="delete-btn" data-id="{{ row.id }}">
+            <i class="fas fa-trash"></i>
+        </button>
+
+    </td>
 </tr>
-    {% else %}
-    <tr>
-        <td colspan="5">
-            <div class="empty-box">
-                <img src="/static/empty.svg" width="120">
-                <h3>No Sales Data</h3>
-                <p>Start by adding your first product 🚀</p>
-            </div>
-        </td>
-    </tr>
-    {% endfor %}
+{% else %}
+<tr>
+    <td colspan="5">
+        <div class="empty-box">
+            <img src="/static/empty.svg" width="120">
+            <h3>No Sales Data</h3>
+            <p>Start by adding your first product 🚀</p>
+        </div>
+    </td>
+</tr>
+{% endfor %}
 </tbody>
                         </table>
                     </div>
@@ -167,7 +193,43 @@
         </div>
     </div>
 </div>
+<div id="editModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>Edit Sale</h3>
+
+  <form id="editForm" method="POST">
+
+    <input type="hidden" name="id" id="edit_id">
+
+    <input type="text" name="product" id="edit_product" required>
+
+    <select name="category" id="edit_category" required>
+        <option>Electronics</option>
+        <option>Clothing</option>
+        <option>Food</option>
+        <option>Home&Living</option>
+        <option>Stationery</option>
+        <option>Personal Care</option>
+    </select>
+
+    <input type="date" name="date" id="edit_date" required>
+
+    <input type="number" name="cost_price" id="edit_cost" step="0.01" required>
+
+    <input type="number" name="rate" id="edit_rate" step="0.01" required>
+
+    <input type="number" name="qty" id="edit_qty" required>
+
+    <div class="modal-actions">
+        <button type="button" onclick="closeEditModal()" class="btn-cancel">Cancel</button>
+        <button type="submit" class="btn-primary">Update</button>
+    </div>
+
+</form>
+    </div>
+</div>
 <script>
+    let mainChart, categoryChart, productChart;
 document.addEventListener('DOMContentLoaded', function() {
 
     const dataBridge = document.getElementById('sales-data-bridge');
@@ -202,7 +264,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
 
-   
+    // ===============================
+    // 🔥 BAR CHART (GRADIENT + MODERN)
+    // ===============================
     const barCtx = document.getElementById('productBarChart').getContext('2d');
 
     const barGradient = barCtx.createLinearGradient(0, 0, 0, 400);
@@ -243,53 +307,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-   
-    const lineCtx = document.getElementById('mainSalesChart').getContext('2d');
 
-    const lineGradient = lineCtx.createLinearGradient(0, 0, 0, 300);
-    lineGradient.addColorStop(0, "rgba(79,70,229,0.4)");
-    lineGradient.addColorStop(1, "rgba(79,70,229,0)");
+    // ===============================
+    // 🔥 LINE CHART (SMOOTH + GLOW)
+    // ===============================
+const lineCtx = document.getElementById('mainSalesChart').getContext('2d');
 
-    new Chart(lineCtx, {
-        type: 'line',
-        data: {
-            labels: salesData.map(d => d.date).reverse(),
-            datasets: [{
-                label: 'Revenue',
-                data: salesData.map(d => parseFloat(d.total) || 0).reverse(),
-                borderColor: '#4f46e5',
-                backgroundColor: lineGradient,
-                fill: true,
-                tension: 0.45,
-                borderWidth: 3,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBackgroundColor: '#fff',
-                pointBorderColor: '#4f46e5'
-            }]
+const lineGradient = lineCtx.createLinearGradient(0, 0, 0, 300);
+lineGradient.addColorStop(0, "rgba(79,70,229,0.4)");
+lineGradient.addColorStop(1, "rgba(79,70,229,0)");
+
+const profitData = salesData.map(d => parseFloat(d.profit) || 0).reverse();
+
+new Chart(lineCtx, {
+    type: 'line',
+    data: {
+        labels: salesData.map(d => d.date).reverse(),
+        datasets: [
+        {
+            label: 'Revenue',
+            data: salesData.map(d => parseFloat(d.total) || 0).reverse(),
+            borderColor: '#4f46e5',
+            backgroundColor: lineGradient,
+            fill: true,
+            tension: 0.45,
+            borderWidth: 3
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-                duration: 1400,
-                easing: 'easeOutCubic'
-            },
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#6b7280' }
-                },
-                y: {
-                    grid: { color: '#e5e7eb' },
-                    ticks: { color: '#6b7280' }
-                }
-            }
+        {
+            label: 'Profit',
+            data: profitData,
+            borderColor: '#10b981',
+            borderWidth: 2,
+            tension: 0.4
         }
-    });
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
 
     // ===============================
     // 🔥 DOUGHNUT CHART (CLEAN + MODERN)
@@ -345,9 +402,10 @@ function openDeleteModal(id) {
 function closeDeleteModal() {
     document.getElementById("deleteModal").style.display = "none";
 }
-
+// ================= EDIT + DELETE LOGIC =================
 document.addEventListener("DOMContentLoaded", function () {
 
+    // 🔥 DELETE BUTTON
     document.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", function () {
             const id = this.getAttribute("data-id");
@@ -355,6 +413,67 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // 🔥 EDIT FORM
+    const editForm = document.getElementById("editForm");
+
+    if (editForm) {
+        editForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch(this.action, {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+
+                    const id = formData.get("id");
+                    const row = document.getElementById("row-" + id);
+
+                    row.children[0].innerText = formData.get("date");
+                    row.children[1].innerText = formData.get("product");
+                    row.children[2].innerHTML =
+                        `<span class="badge">${formData.get("category")}</span>`;
+
+                    const total =
+                        (parseFloat(formData.get("rate")) || 0) *
+                        (parseInt(formData.get("qty")) || 0);
+
+                    row.children[3].innerText = total.toFixed(2);
+
+                    closeEditModal();
+
+                    // 🔥 IMPORTANT (updates charts + stats)
+                    location.reload();
+
+                } else {
+                    alert("Update failed: " + data.error);
+                }
+            })
+            .catch(err => console.error(err));
+        });
+    }
+
 });
 
+// ================= EDIT MODAL =================
+function openEditModal(id, product, category, date, cost, rate, qty) {
+    document.getElementById("edit_id").value = id;
+    document.getElementById("edit_product").value = product;
+    document.getElementById("edit_category").value = category;
+    document.getElementById("edit_date").value = date;
+    document.getElementById("edit_cost").value = cost;
+    document.getElementById("edit_rate").value = rate;
+    document.getElementById("edit_qty").value = qty;
+
+    document.getElementById("editForm").action = "/edit/" + id;
+    document.getElementById("editModal").style.display = "flex";
+}
+
+function closeEditModal() {
+    document.getElementById("editModal").style.display = "none";
+}
 </script>
