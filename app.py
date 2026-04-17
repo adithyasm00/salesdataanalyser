@@ -1,15 +1,14 @@
 import os
 import sqlite3
 import pandas as pd
-import numpy as np
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file, make_response
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify,  make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from io import StringIO
 
 
 
 app = Flask(__name__)
-app.secret_key = 'high_level_sales_analyzer_secret_key'
+app.secret_key = os.environ.get('SECRET_KEY', 'dev_key')
 
 DATABASE = 'database.db'
 
@@ -83,7 +82,7 @@ def export_csv():
     conn = get_db_connection()
 
     df = pd.read_sql_query("""
-        SELECT date, product, category, total 
+        SELECT date, product, category, quantity, cost_price, total, profit 
         FROM sales WHERE user_id = ?
     """, conn, params=(session['user_id'],))
 
@@ -95,7 +94,10 @@ def export_csv():
         'date': 'Date',
         'product': 'Product',
         'category': 'Category',
-        'total': 'Total ($)'
+        'quantity':'Quantity',
+        'cost_price':'Costprice',
+        'total': 'Total ($)',
+        'profit':'Profit'
     }, inplace=True)
 
     output = StringIO()
@@ -109,20 +111,14 @@ def export_csv():
 
 
 # ---------------- DELETE ----------------
-@app.route('/delete_sale/<int:id>')
-def delete_sale(id):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
+@app.route('/delete_sale/<int:id>', methods=['POST'])
+def delete_sale(id):
     conn = get_db_connection()
-    conn.execute('DELETE FROM sales WHERE id=? AND user_id=?',
-                 (id, session['user_id']))
+    conn.execute("DELETE FROM sales WHERE id = ?", (id,))
     conn.commit()
     conn.close()
-
-    flash('Record deleted!', 'success')
-    return redirect(url_for('dashboard'))
-
+    return redirect('/dashboard')
 
 # ---------------- AUTH ----------------
 @app.route('/')
@@ -190,36 +186,43 @@ def dashboard():
     conn = get_db_connection()
 
     if request.method == 'POST':
-        try:
-            rate = float(request.form['rate'])
-            cost_price = float(request.form['cost_price'])
-            qty = int(request.form['qty'])
+      try:
+        rate = float(request.form.get('rate', 0))
+        cost_price = float(request.form.get('cost_price', 0))
+        qty = int(request.form.get('qty', 0))
+      except ValueError:
+        flash("Invalid numeric input", "danger")
+        return redirect(url_for('dashboard'))
 
-            total = round(rate * qty, 2)
-            profit = round((rate - cost_price) * qty, 2)
+    
+      try:
+        total = round(rate * qty, 2)
+        profit = round((rate - cost_price) * qty, 2)
 
-            conn.execute("""
-                INSERT INTO sales
-                (user_id, product, category, date, rate, cost_price, quantity, total, profit)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                session['user_id'],
-                request.form['product'],
-                request.form['category'],
-                request.form['date'],
-                rate,
-                cost_price,
-                qty,
-                total,
-                profit
-            ))
+        conn.execute("""
+            INSERT INTO sales
+            (user_id, product, category, date, rate, cost_price, quantity, total, profit)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            session['user_id'],
+            request.form['product'],
+            request.form['category'],
+            request.form['date'],
+            rate,
+            cost_price,
+            qty,
+            total,
+            profit
+        ))
 
-            conn.commit()
-            flash('Added successfully!', 'success')
-            return redirect(url_for('dashboard'))
+        conn.commit()
+        flash('Added successfully!', 'success')
+        return redirect(url_for('dashboard'))
 
-        except Exception as e:
-            flash(str(e), 'danger')
+      except Exception as e:
+        flash(str(e), 'danger')
+
+        
 
     rows = conn.execute(
         'SELECT * FROM sales WHERE user_id=? ORDER BY date DESC',
@@ -289,7 +292,7 @@ def edit_sale(id):
 
         conn.commit()
 
-        #  FETCH UPDATED DATA (FOR CHARTS)
+        # 🔥 FETCH UPDATED DATA (FOR CHARTS)
         rows = conn.execute(
             "SELECT * FROM sales WHERE user_id=? ORDER BY date DESC",
             (session['user_id'],)
@@ -339,7 +342,7 @@ def edit_sale(id):
             },
             "stats": stats,
              
-            "full_data": df.to_dict(orient="records") # REQUIRED FOR LIVE CHARTS
+            "full_data": df.to_dict(orient="records") # 🔥 REQUIRED FOR LIVE CHARTS
         })
 
     except Exception as e:
@@ -359,7 +362,64 @@ def profile():
 
     return render_template('profile.html', user_email=user['email'])
 
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
 
+    name = request.form['name']
+    email = request.form['email']
+
+    conn = get_db_connection()
+
+    try:
+        conn.execute("""
+            UPDATE users
+            SET name=?, email=?
+            WHERE id=?
+        """, (name, email, session['user_id']))
+
+        conn.commit()
+
+        # ✅ Update session values also
+        session['name'] = name
+
+        flash("Profile updated successfully!", "success")
+
+    except sqlite3.IntegrityError:
+        flash("Email already exists!", "danger")
+
+    finally:
+        conn.close()
+
+    return redirect(url_for('profile'))
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    new_password = request.form['new_password']
+    confirm_password = request.form['confirm_password']
+
+    if new_password != confirm_password:
+        flash("Passwords do not match!", "danger")
+        return redirect(url_for('profile'))
+
+    if len(new_password) < 8:
+        flash("Password must be at least 8 characters!", "danger")
+        return redirect(url_for('profile'))
+
+    hashed_password = generate_password_hash(new_password)
+
+    conn = get_db_connection()
+    conn.execute("""
+        UPDATE users SET password=? WHERE id=?
+    """, (hashed_password, session['user_id']))
+    conn.commit()
+    conn.close()
+
+    flash("Password updated successfully!", "success")
+    return redirect(url_for('profile'))
 # ---------------- RUN ----------------
 if __name__ == '__main__':
     app.run(debug=True)
