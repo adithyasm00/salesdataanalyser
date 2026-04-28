@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Dashboard | SalesAnalyzer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -136,22 +135,30 @@
         </table>
     </div>
 </section>
-                <div class="visuals-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 25px;">
-                    <div class="card chart-container">
-    <h3>Monthly Sales Growth</h3>
-    <canvas id="mainSalesChart"></canvas>
+               
+                       <div class="visuals-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 25px;">
+    
+    <div class="card chart-container" style="grid-column: span 2; padding: 25px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h4 style="font-weight: 800; color: #1e293b; margin: 0;">Performance Analytics</h4>
+            <span style="background: #eef2ff; color: #6366f1; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">LIVE DATA</span>
+        </div>
+        <img src="{{ growth_chart }}" style="width:100%; height:auto; filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04));">
+    </div>
+
+    <div class="card chart-container" style="padding: 20px;">
+        <h4 style="font-weight: 800; color: #1e293b; margin-bottom: 20px;">Top Products Revenue</h4>
+        <img src="{{ product_chart }}" style="width:100%; height:auto;">
+    </div>
+
+    <div class="card chart-container" style="padding: 20px;">
+        <img src="{{ category_chart }}" style="width:100%; height:auto;">
+    </div>
 </div>
-                    <div class="card chart-container">
-                        <h3>Category Split</h3>
-                        <canvas id="categoryChart"></canvas>
-                    </div>
-                </div>
-<div class="card chart-container">
-    <h3>Sales Chart (Product Performance)</h3>
-    <canvas id="productBarChart"></canvas>
-</div>
+                    
                 <section class="card table-card" style="margin-top: 25px;">
-                    <h3>Recent Transactions</h3>
+                    <h3>Recent Transactions</h3><br>
+                    
                     <div class="table-responsive">
                         
     <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
@@ -292,165 +299,6 @@ function toggleSidebar() {
     document.getElementById("deleteModal").style.display = "flex";
     document.getElementById("deleteForm").action = "/delete_sale/" + id;
 }
-
-    let mainChart, categoryChart, productChart;
-document.addEventListener('DOMContentLoaded', function() {
-
-    const dataBridge = document.getElementById('sales-data-bridge');
-    let salesData = [];
-
-    try {
-        salesData = JSON.parse(dataBridge.getAttribute('data-sales'));
-    } catch (e) {
-        salesData = [];
-    }
-
-    if (!salesData || salesData.length === 0) {
-        document.querySelectorAll("canvas").forEach(c => {
-            c.parentElement.innerHTML =
-                "<div class='empty-chart'><h3>No Data</h3><p>Add sales 🚀</p></div>";
-        });
-        return;
-    }
-
-    const prodMap = {};
-    const catTotals = {};
-
-    salesData.forEach(item => {
-        const name = item.product;
-        const total = parseFloat(item.total) || 0;
-
-        prodMap[name] = (prodMap[name] || 0) + total;
-        catTotals[item.category] = (catTotals[item.category] || 0) + 1;
-    });
-
-    const sortedProds = Object.entries(prodMap)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
-
-   
-   
-    const barCtx = document.getElementById('productBarChart').getContext('2d');
-
-    const barGradient = barCtx.createLinearGradient(0, 0, 0, 400);
-    barGradient.addColorStop(0, "#4f46e5");
-    barGradient.addColorStop(1, "#6366f1");
-
-    new Chart(barCtx, {
-        type: 'bar',
-        data: {
-            labels: sortedProds.map(p => p[0]),
-            datasets: [{
-                label: 'Revenue',
-                data: sortedProds.map(p => p[1]),
-                backgroundColor: barGradient,
-                borderRadius: 10,
-                barThickness: 28
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-                duration: 1200,
-                easing: 'easeOutQuart'
-            },
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#6b7280' }
-                },
-                y: {
-                    grid: { color: '#e5e7eb' },
-                    ticks: { color: '#6b7280' }
-                }
-            }
-        }
-    });
-
-    
-const lineCtx = document.getElementById('mainSalesChart').getContext('2d');
-
-const lineGradient = lineCtx.createLinearGradient(0, 0, 0, 300);
-lineGradient.addColorStop(0, "rgba(79,70,229,0.4)");
-lineGradient.addColorStop(1, "rgba(79,70,229,0)");
-
-const profitData = salesData.map(d => parseFloat(d.profit) || 0).reverse();
-
-new Chart(lineCtx, {
-    type: 'line',
-    data: {
-        labels: salesData.map(d => d.date).reverse(),
-        datasets: [
-        {
-            label: 'Revenue',
-            data: salesData.map(d => parseFloat(d.total) || 0).reverse(),
-            borderColor: '#4f46e5',
-            backgroundColor: lineGradient,
-            fill: true,
-            tension: 0.45,
-            borderWidth: 3
-        },
-        {
-            label: 'Profit',
-            data: profitData,
-            borderColor: '#10b981',
-            borderWidth: 2,
-            tension: 0.4
-        }
-        ]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
-    }
-});
-
-    new Chart(document.getElementById('categoryChart'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(catTotals),
-            datasets: [{
-                data: Object.values(catTotals),
-                backgroundColor: [
-                    '#4f46e5',
-                    '#06d6a0',
-                    '#f59e0b',
-                    '#ef4444',
-                    '#8b5cf6'
-                ],
-                borderWidth: 0,
-                hoverOffset: 12
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '70%',
-            animation: {
-                animateRotate: true,
-                duration: 1200
-            },
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: '#6b7280',
-                        padding: 15,
-                        usePointStyle: true
-                    }
-                }
-            }
-        }
-    });
-
-});
-
-
-
 document.addEventListener("DOMContentLoaded", function () {
 
    
