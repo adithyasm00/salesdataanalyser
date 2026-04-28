@@ -312,15 +312,6 @@ td {
         width: 100%;
     }
 }
-.chart-container {
-    position: relative;
-    height: 350px; 
-    width: 100%;
-    padding: 20px;
-    border-radius: 16px;
-    background: linear-gradient(145deg, #ffffff, #f1f5f9);
-    border: 1px solid #e2e8f0;
-}
 
 .profile-page-wrapper {
     display: flex;
@@ -1332,12 +1323,7 @@ table {
     border-radius: 8px;
     transition: transform 0.3s ease;
 }
-.chart-container {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    padding: 1.5rem;
-    overflow: hidden;
-}
+
 .chart-header {
     margin-bottom: 1rem;
     border-bottom: 1px solid #f3f4f6;
@@ -1357,5 +1343,113 @@ table {
     }
     .card {
         grid-column: span 1 !important;
+    }
+}
+/* ================= CHART LAYOUT ================= */
+
+.visuals-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+    align-items: stretch;
+}
+
+/* Chart Card */
+.chart-container {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    min-height: 380px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    transition: 0.3s ease;
+    overflow: hidden;
+}
+
+.chart-container:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+}
+
+/* Chart Title */
+.chart-header {
+    margin-bottom: 18px;
+}
+
+.chart-header h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* Chart Image */
+.chart-container img {
+    width: 100%;
+    height: auto;
+    max-height: 390px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    border-radius: 12px;
+}
+
+/* ================= TABLET ================= */
+
+@media (max-width: 1024px) {
+    .visuals-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container {
+        min-height: 420px;
+    }
+
+    .chart-container img {
+        max-height: 380px;
+    }
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: 20px;
+    }
+
+    .visuals-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .chart-container {
+        padding: 18px;
+        min-height: auto;
+        border-radius: 16px;
+    }
+
+    .chart-header h3 {
+        font-size: 1rem;
+    }
+
+    .chart-container img {
+        max-height: 300px;
+    }
+}
+
+/* ================= SMALL MOBILE ================= */
+
+@media (max-width: 480px) {
+    .chart-container {
+        padding: 14px;
+    }
+
+    .chart-container img {
+        max-height: 240px;
+    }
+
+    .chart-header h3 {
+        font-size: 0.95rem;
     }
 }
