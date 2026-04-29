@@ -18,13 +18,9 @@
             <ul class="nav-links">
                 <li><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="/profile" class="active"><i class="fas fa-user"></i> My Profile</a></li>
-                {% if session['role'] == 'admin' %}
-                <li><a href="/admin"><i class="fas fa-user-shield"></i> Admin Panel</a></li>
-                {% endif %}
                 <li class="logout-item"><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </nav>
-
         <div class="main-wrapper">
             <header class="top-navbar">
                 <div class="user-info">
