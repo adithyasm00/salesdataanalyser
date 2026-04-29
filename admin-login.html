@@ -1,0 +1,278 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+:root {
+    --bg:        #050c17;
+    --surface:   #080f1e;
+    --border:    rgba(56,189,248,0.08);
+    --border2:   rgba(56,189,248,0.18);
+    --sky:       #38bdf8;
+    --text:      #cdd9eb;
+    --text-dim:  #5d7a9a;
+    --glow-sky:  rgba(56,189,248,0.18);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* grain overlay */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* ambient glow blobs */
+body::after {
+    content: '';
+    position: fixed;
+    top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(56,189,248,0.07) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.blob-bottom {
+    position: fixed;
+    bottom: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(56,189,248,0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* ── LOGIN CARD ── */
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(56,189,248,0.05);
+    position: relative;
+    z-index: 1;
+    animation: cardIn 0.35s ease;
+}
+
+@keyframes cardIn {
+    from { opacity: 0; transform: translateY(18px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* top glow line */
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--sky), transparent);
+    opacity: 0.6;
+}
+
+/* ── HEADER ── */
+.login-header {
+    padding: 32px 32px 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(56,189,248,0.05), transparent);
+}
+
+.shield-icon {
+    width: 58px; height: 58px;
+    border-radius: 16px;
+    background: rgba(56,189,248,0.1);
+    border: 1px solid rgba(56,189,248,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    font-size: 1.4rem;
+    color: var(--sky);
+    box-shadow: 0 0 24px var(--glow-sky);
+}
+
+.login-header h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.login-header small {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+}
+
+/* ── BODY ── */
+.login-body {
+    padding: 28px 32px 32px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+
+.input-wrap {
+    position: relative;
+}
+
+.input-wrap i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    pointer-events: none;
+    transition: color 0.2s;
+}
+
+.input-wrap input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px 12px 38px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.22s ease;
+}
+
+.input-wrap input:focus {
+    border-color: rgba(56,189,248,0.4);
+    background: rgba(56,189,248,0.04);
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.08);
+}
+
+.input-wrap input:focus + i,
+.input-wrap:focus-within i {
+    color: var(--sky);
+}
+
+/* fix icon z-order */
+.input-wrap i { z-index: 1; }
+
+/* ── SUBMIT BUTTON ── */
+.btn-login {
+    width: 100%;
+    margin-top: 8px;
+    padding: 13px;
+    border-radius: 12px;
+    border: 1px solid rgba(56,189,248,0.3);
+    background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(56,189,248,0.08));
+    color: var(--sky);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    transition: all 0.22s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-login::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(56,189,248,0.15), transparent);
+    opacity: 0;
+    transition: opacity 0.22s ease;
+}
+
+.btn-login:hover {
+    border-color: rgba(56,189,248,0.55);
+    box-shadow: 0 0 24px var(--glow-sky);
+    color: #fff;
+}
+
+.btn-login:hover::before { opacity: 1; }
+
+.btn-login:active { transform: scale(0.98); }
+  </style>
+</head>
+
+<body>
+  <div class="blob-bottom"></div>
+
+  <div class="card login-card">
+
+    <div class="login-header">
+      <div class="shield-icon">
+        <i class="fas fa-user-shield"></i>
+      </div>
+      <h3>Admin Login</h3>
+      <small>Enter your admin credentials to continue</small>
+    </div>
+
+    <div class="login-body">
+      <form method="POST" action="/admin-login">
+
+        <div class="form-group">
+          <label>Username</label>
+          <div class="input-wrap">
+            <i class="fas fa-user"></i>
+            <input type="text" name="username"  required autocomplete="username">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-wrap">
+            <i class="fas fa-lock"></i>
+            <input type="password" name="password"  required autocomplete="current-password">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login">
+          <i class="fas fa-right-to-bracket"></i> Login
+        </button>
+
+      </form>
+    </div>
+
+  </div>
+</body>
+</html>
