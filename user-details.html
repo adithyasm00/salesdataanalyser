@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Details</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+:root {
+    --bg:        #050c17;
+    --surface:   #080f1e;
+    --surface2:  #0c1628;
+    --border:    rgba(56,189,248,0.08);
+    --border2:   rgba(56,189,248,0.15);
+    --sky:       #38bdf8;
+    --emerald:   #10b981;
+    --amber:     #f59e0b;
+    --rose:      #f43f5e;
+    --muted:     #4a6080;
+    --text:      #cdd9eb;
+    --text-dim:  #5d7a9a;
+    --glow-sky:  rgba(56,189,248,0.18);
+    --glow-em:   rgba(16,185,129,0.18);
+    --glow-am:   rgba(245,158,11,0.18);
+    --glow-ro:   rgba(244,63,94,0.18);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* grain overlay */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* ══════════════════════════
+   SIDEBAR
+══════════════════════════ */
+.sidebar {
+    width: 230px;
+    height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
+    background: var(--surface);
+    padding: 28px 18px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.sidebar::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 1px; height: 100%;
+    background: linear-gradient(180deg, transparent, var(--sky) 40%, transparent);
+    opacity: 0.3;
+}
+
+.sidebar h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #fff;
+    margin-bottom: 36px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar h2 span.bolt {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px; height: 30px;
+    background: var(--sky);
+    border-radius: 8px;
+    color: #000;
+    font-size: 0.95rem;
+    box-shadow: 0 0 14px var(--glow-sky);
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    color: var(--text-dim);
+    padding: 11px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    margin-bottom: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: all 0.22s ease;
+    position: relative;
+    border: 1px solid transparent;
+}
+
+.sidebar a i { width: 16px; text-align: center; font-size: 0.85rem; }
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: linear-gradient(90deg, rgba(56,189,248,0.1), transparent);
+    color: var(--sky);
+    border-color: var(--border2);
+}
+
+.sidebar a.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20%; bottom: 20%;
+    width: 3px;
+    background: var(--sky);
+    border-radius: 0 3px 3px 0;
+    box-shadow: 0 0 8px var(--sky);
+}
+
+/* ══════════════════════════
+   MAIN
+══════════════════════════ */
+.main {
+    margin-left: 230px;
+    padding: 30px 32px;
+    min-height: 100vh;
+}
+
+/* TOPBAR */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.topbar h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #fff 30%, var(--sky));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.back-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    padding: 9px 18px;
+    border-radius: 10px;
+    color: var(--sky);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.22s ease;
+}
+
+.back-btn:hover {
+    background: rgba(56,189,248,0.1);
+    box-shadow: 0 0 16px var(--glow-sky);
+}
+
+/* ══════════════════════════
+   PROFILE + STATS ROW
+══════════════════════════ */
+.top-row {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+/* PROFILE CARD */
+.profile-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--sky);
+    border-radius: 16px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 120px;
+    background: var(--sky);
+    border-radius: 50%;
+    filter: blur(50px);
+    opacity: 0.12;
+    pointer-events: none;
+}
+
+.avatar {
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sky), #0369a1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 0 20px var(--glow-sky);
+    flex-shrink: 0;
+}
+
+.profile-card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.profile-card .email {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    word-break: break-all;
+}
+
+.badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(56,189,248,0.1);
+    border: 1px solid rgba(56,189,248,0.25);
+    color: var(--sky);
+}
+
+.divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+}
+
+.meta-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+}
+
+.meta-row span:first-child { color: var(--text-dim); }
+.meta-row span:last-child { color: var(--text); font-weight: 500; }
+
+/* STAT CARDS */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    align-content: start;
+}
+
+.stat-card {
+    padding: 22px 20px 18px;
+    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: default;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    filter: blur(38px);
+    opacity: 0.32;
+    pointer-events: none;
+}
+
+.stat-card:hover { transform: translateY(-4px); }
+
+.c1 { border-top: 2px solid var(--sky); }
+.c2 { border-top: 2px solid var(--emerald); }
+.c3 { border-top: 2px solid var(--amber); }
+.c4 { border-top: 2px solid var(--rose); }
+
+.c1::before { background: var(--sky); }
+.c2::before { background: var(--emerald); }
+.c3::before { background: var(--amber); }
+.c4::before { background: var(--rose); }
+
+.c1:hover { box-shadow: 0 12px 40px var(--glow-sky); border-color: rgba(56,189,248,0.25); }
+.c2:hover { box-shadow: 0 12px 40px var(--glow-em); border-color: rgba(16,185,129,0.25); }
+.c3:hover { box-shadow: 0 12px 40px var(--glow-am); border-color: rgba(245,158,11,0.25); }
+.c4:hover { box-shadow: 0 12px 40px var(--glow-ro); border-color: rgba(244,63,94,0.25); }
+
+.stat-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+}
+
+.stat-card p {
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.stat-card i {
+    position: absolute;
+    right: 16px; bottom: 14px;
+    font-size: 1.5rem;
+    opacity: 0.15;
+}
+
+.c1 i { color: var(--sky); }
+.c2 i { color: var(--emerald); }
+.c3 i { color: var(--amber); }
+.c4 i { color: var(--rose); }
+
+/* ══════════════════════════
+   CHART ROW
+══════════════════════════ */
+.chart-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+/* ══════════════════════════
+   CARD (shared)
+══════════════════════════ */
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(90deg, rgba(56,189,248,0.04), transparent);
+}
+
+.card-header::before {
+    content: '';
+    display: block;
+    width: 4px; height: 18px;
+    background: var(--sky);
+    border-radius: 4px;
+    box-shadow: 0 0 8px var(--sky);
+    flex-shrink: 0;
+}
+
+.card-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #fff;
+}
+
+.card-body { padding: 20px; }
+
+.chart-img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    display: block;
+}
+
+/* ══════════════════════════
+   TABLE
+══════════════════════════ */
+.table-card { margin-top: 0; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead tr {
+    border-bottom: 1px solid var(--border);
+    background: rgba(56,189,248,0.03);
+}
+
+th {
+    padding: 13px 18px;
+    text-align: left;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+
+td {
+    padding: 13px 18px;
+    font-size: 0.845rem;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.18s ease;
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(56,189,248,0.04); }
+
+/* profit / revenue colouring */
+td.positive { color: var(--emerald); font-weight: 600; }
+td.negative { color: var(--rose); font-weight: 600; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+  </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>
+        <span class="bolt">⚡</span>
+        Admin
+    </h2>
+    <a href="/admin-panel">
+        <i class="fas fa-chart-line"></i> Dashboard
+    </a>
+    <a href="#users" class="active">
+        <i class="fas fa-users"></i> Users
+    </a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <h2>User Details</h2>
+        <a href="/admin-panel" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <!-- PROFILE + STATS -->
+    <div class="top-row">
+
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <div class="avatar">{{ user.name|first|upper }}</div>
+            <h4>{{ user.name }}</h4>
+            <span class="email">{{ user.email }}</span>
+            <span class="badge">{{ user.role }}</span>
+            <div class="divider"></div>
+            <div class="meta-row">
+                <span>Status</span>
+                <span style="color:var(--emerald);">● Active</span>
+            </div>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="stat-grid">
+            <div class="stat-card c1">
+                <h3>{{ stats.count }}</h3>
+                <p>Total Entries</p>
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="stat-card c2">
+                <h3>{{ stats.total_revenue }}</h3>
+                <p>Total Revenue</p>
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-card c3">
+                <h3>{{ stats.profit }}</h3>
+                <p>Total Profit</p>
+                <i class="fas fa-coins"></i>
+            </div>
+            <div class="stat-card c4">
+                <h3>{{ stats.top_product }}</h3>
+                <p>Top Product</p>
+                <i class="fas fa-box"></i>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CHARTS -->
+    <div class="chart-row">
+        <div class="card">
+            <div class="card-header">
+                <h3>Product Revenue Bar Graph</h3>
+            </div>
+            <div class="card-body">
+                <img class="chart-img" src="{{ bar_chart }}" alt="Bar Chart">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Category Pie Chart</h3>
+            </div>
+            <div class="card-body">
+                <img class="chart-img" src="{{ pie_chart }}" alt="Pie Chart">
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card table-card">
+        <div class="card-header">
+            <h3>User Sales Details</h3>
+        </div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Cost Price</th>
+                        <th>Selling Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Profit</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in full_data %}
+                    <tr>
+                        <td>{{ row.product }}</td>
+                        <td>{{ row.category }}</td>
+                        <td>{{ row.cost_price }}</td>
+                        <td>{{ row.rate }}</td>
+                        <td>{{ row.quantity }}</td>
+                        <td>{{ row.total }}</td>
+                        <td class="positive">{{ row.profit }}</td>
+                        <td style="color:var(--text-dim);">{{ row.date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
