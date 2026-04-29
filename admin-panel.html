@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg:        #050c17;
+    --surface:   #080f1e;
+    --surface2:  #0c1628;
+    --border:    rgba(56,189,248,0.08);
+    --border2:   rgba(56,189,248,0.15);
+    --sky:       #38bdf8;
+    --emerald:   #10b981;
+    --amber:     #f59e0b;
+    --rose:      #f43f5e;
+    --muted:     #4a6080;
+    --text:      #cdd9eb;
+    --text-dim:  #5d7a9a;
+    --glow-sky:  rgba(56,189,248,0.18);
+    --glow-em:   rgba(16,185,129,0.18);
+    --glow-am:   rgba(245,158,11,0.18);
+    --glow-ro:   rgba(244,63,94,0.18);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ── noise grain overlay ── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* ══════════════════════════
+   SIDEBAR
+══════════════════════════ */
+.sidebar {
+    width: 230px;
+    height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
+    background: var(--surface);
+    padding: 28px 18px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+}
+
+/* thin gradient line on right edge */
+.sidebar::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, var(--sky) 40%, transparent);
+    opacity: 0.3;
+}
+
+.sidebar h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #fff;
+    margin-bottom: 36px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar h2 span.bolt {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px; height: 30px;
+    background: var(--sky);
+    border-radius: 8px;
+    color: #000;
+    font-size: 0.95rem;
+    box-shadow: 0 0 14px var(--glow-sky);
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    color: var(--text-dim);
+    padding: 11px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    margin-bottom: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: all 0.22s ease;
+    position: relative;
+}
+
+.sidebar a i {
+    width: 16px;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: linear-gradient(90deg, rgba(56,189,248,0.1), transparent);
+    color: var(--sky);
+    border: 1px solid var(--border2);
+}
+
+.sidebar a.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20%; bottom: 20%;
+    width: 3px;
+    background: var(--sky);
+    border-radius: 0 3px 3px 0;
+    box-shadow: 0 0 8px var(--sky);
+}
+
+.sidebar a:not(.active) { border: 1px solid transparent; }
+
+/* ══════════════════════════
+   MAIN
+══════════════════════════ */
+.main {
+    margin-left: 230px;
+    padding: 30px 32px;
+    min-height: 100vh;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.topbar h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #fff 30%, var(--sky));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.01em;
+}
+
+.logout-btn {
+    background: transparent;
+    border: 1px solid rgba(244,63,94,0.4);
+    padding: 9px 18px;
+    border-radius: 10px;
+    color: var(--rose);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.22s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(244,63,94,0.12);
+    border-color: var(--rose);
+    box-shadow: 0 0 16px rgba(244,63,94,0.2);
+}
+
+/* ── STAT CARDS ── */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    padding: 24px 22px 20px;
+    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: default;
+}
+
+/* ambient glow blob per card */
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.35;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.stat-card:hover { transform: translateY(-4px); }
+
+.c1::before { background: var(--sky); }
+.c2::before { background: var(--emerald); }
+.c3::before { background: var(--amber); }
+.c4::before { background: var(--rose); }
+
+.c1:hover { box-shadow: 0 12px 40px var(--glow-sky); border-color: rgba(56,189,248,0.25); }
+.c2:hover { box-shadow: 0 12px 40px var(--glow-em); border-color: rgba(16,185,129,0.25); }
+.c3:hover { box-shadow: 0 12px 40px var(--glow-am); border-color: rgba(245,158,11,0.25); }
+.c4:hover { box-shadow: 0 12px 40px var(--glow-ro); border-color: rgba(244,63,94,0.25); }
+
+/* top accent line */
+.c1 { border-top: 2px solid var(--sky); }
+.c2 { border-top: 2px solid var(--emerald); }
+.c3 { border-top: 2px solid var(--amber); }
+.c4 { border-top: 2px solid var(--rose); }
+
+.stat-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+}
+
+.stat-card p {
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.stat-card i {
+    position: absolute;
+    right: 18px;
+    bottom: 16px;
+    font-size: 1.6rem;
+    opacity: 0.15;
+}
+
+.c1 i { color: var(--sky); }
+.c2 i { color: var(--emerald); }
+.c3 i { color: var(--amber); }
+.c4 i { color: var(--rose); }
+
+/* ── TABLE CARD ── */
+.card {
+    margin-top: 26px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(90deg, rgba(56,189,248,0.04), transparent);
+}
+
+.card-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #fff;
+}
+
+.card-header::before {
+    content: '';
+    display: block;
+    width: 4px; height: 18px;
+    background: var(--sky);
+    border-radius: 4px;
+    box-shadow: 0 0 8px var(--sky);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead tr {
+    border-bottom: 1px solid var(--border);
+    background: rgba(56,189,248,0.03);
+}
+
+th {
+    padding: 13px 22px;
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+td {
+    padding: 14px 22px;
+    font-size: 0.875rem;
+    color: var(--text);
+}
+
+tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.18s ease;
+}
+
+tbody tr:last-child { border-bottom: none; }
+
+tbody tr:hover {
+    background: rgba(56,189,248,0.04);
+}
+
+/* id styling */
+tbody td:first-child {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-weight: 600;
+}
+
+/* ── BADGE ── */
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: rgba(56,189,248,0.1);
+    border: 1px solid rgba(56,189,248,0.2);
+    color: var(--sky);
+}
+
+/* ── BUTTONS ── */
+.btn {
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-view {
+    background: rgba(56,189,248,0.12);
+    color: var(--sky);
+    border: 1px solid rgba(56,189,248,0.25);
+}
+
+.btn-view:hover {
+    background: rgba(56,189,248,0.22);
+    box-shadow: 0 0 12px var(--glow-sky);
+}
+
+.btn-delete {
+    background: rgba(244,63,94,0.1);
+    color: var(--rose);
+    border: 1px solid rgba(244,63,94,0.25);
+}
+
+.btn-delete:hover {
+    background: rgba(244,63,94,0.2);
+    box-shadow: 0 0 12px var(--glow-ro);
+}
+
+/* ── scroll ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h2>
+        <span class="bolt">⚡</span>
+        Admin
+    </h2>
+
+    <a href="/admin-panel" class="active">
+        <i class="fas fa-chart-line"></i> Dashboard
+    </a>
+
+    <a href="#users">
+        <i class="fas fa-users"></i> Users
+    </a>
+</div>
+
+<div class="main">
+
+    <div class="topbar">
+        <h2>Dashboard</h2>
+        <a href="/admin-logout" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <div class="stat-grid">
+
+        <div class="stat-card c1">
+            <h3>{{ total_users }}</h3>
+            <p>Total Users</p>
+            <i class="fas fa-users"></i>
+        </div>
+
+        <div class="stat-card c2">
+            <h3>{{ total_sales }}</h3>
+            <p>Total Sales</p>
+            <i class="fas fa-chart-line"></i>
+        </div>
+
+        <div class="stat-card c3">
+            <h3>{{ total_revenue }}</h3>
+            <p>Total Revenue</p>
+            <i class="fas fa-coins"></i>
+        </div>
+
+        <div class="stat-card c4">
+            <h3>{{ total_profit }}</h3>
+            <p>Total Profit</p>
+            <i class="fas fa-sack-dollar"></i>
+        </div>
+
+    </div>
+
+    <div class="card" id="users">
+        <div class="card-header">
+            <h3>User List</h3>
+        </div>
+
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td><span class="badge">{{ user.role }}</span></td>
+
+                        <td>
+                            <a href="/admin/user/{{ user.id }}" class="btn btn-view">
+                                <i class="fas fa-eye"></i>
+                            </a>
+
+                            {% if user.role != 'admin' %}
+                            <form id="delete-form-{{ user.id }}" action="/admin/delete_user/{{ user.id }}" method="post" style="display:inline;">
+                                <button type="button" class="btn btn-delete"
+                                    onclick="openDeleteModal('{{ user.id }}', '{{ user.name }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div id="delete-modal" style="
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+">
+    <!-- Backdrop -->
+    <div onclick="closeDeleteModal()" style="
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+        backdrop-filter: blur(6px);
+    "></div>
+
+    <!-- Box -->
+    <div style="
+        position: relative;
+        background: #080f1e;
+        border: 1px solid rgba(244,63,94,0.25);
+        border-top: 2px solid #f43f5e;
+        border-radius: 18px;
+        padding: 36px 32px 28px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 40px rgba(244,63,94,0.1);
+        animation: modalIn 0.2s ease;
+        text-align: center;
+    ">
+        <!-- Icon -->
+        <div style="
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: rgba(244,63,94,0.1);
+            border: 1px solid rgba(244,63,94,0.3);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.4rem;
+            color: #f43f5e;
+        ">
+            <i class="fas fa-trash-can"></i>
+        </div>
+
+        <h3 style="
+            font-family: 'Syne', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+            letter-spacing: 0.01em;
+        ">Delete User?</h3>
+
+        <p style="
+            color: #5d7a9a;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        ">
+            You are about to permanently delete<br>
+            <span id="modal-username" style="color:#cdd9eb; font-weight:600;"></span>.
+            <br>This action cannot be undone.
+        </p>
+
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <button onclick="closeDeleteModal()" style="
+                flex: 1;
+                padding: 11px 0;
+                border-radius: 10px;
+                border: 1px solid rgba(56,189,248,0.2);
+                background: transparent;
+                color: #38bdf8;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            " onmouseover="this.style.background='rgba(56,189,248,0.08)'"
+               onmouseout="this.style.background='transparent'">
+                Cancel
+            </button>
+
+            <button onclick="confirmDelete()" style="
+                flex: 1;
+                padding: 11px 0;
+                border-radius: 10px;
+                border: 1px solid rgba(244,63,94,0.35);
+                background: rgba(244,63,94,0.12);
+                color: #f43f5e;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            " onmouseover="this.style.background='rgba(244,63,94,0.22)'; this.style.boxShadow='0 0 16px rgba(244,63,94,0.2)'"
+               onmouseout="this.style.background='rgba(244,63,94,0.12)'; this.style.boxShadow='none'">
+                <i class="fas fa-trash" style="margin-right:6px;"></i> Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.94) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+</style>
+
+<script>
+let pendingDeleteId = null;
+
+function openDeleteModal(userId, userName) {
+    pendingDeleteId = userId;
+    document.getElementById('modal-username').textContent = userName;
+    const modal = document.getElementById('delete-modal');
+    modal.style.display = 'flex';
+}
+
+function closeDeleteModal() {
+    document.getElementById('delete-modal').style.display = 'none';
+    pendingDeleteId = null;
+}
+
+function confirmDelete() {
+    if (pendingDeleteId) {
+        document.getElementById('delete-form-' + pendingDeleteId).submit();
+    }
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDeleteModal();
+});
+</script>
+
+</body>
+</html>
+
