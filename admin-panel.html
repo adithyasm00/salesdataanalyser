@@ -426,9 +426,7 @@ tbody td:first-child {
         <i class="fas fa-chart-line"></i> Dashboard
     </a>
 
-    <a href="#users">
-        <i class="fas fa-users"></i> Users
-    </a>
+    
 </div>
 
 <div class="main">
@@ -487,28 +485,28 @@ tbody td:first-child {
 
                 <tbody>
                     {% for user in users %}
-                    <tr>
-                        <td>{{ user.id }}</td>
-                        <td>{{ user.name }}</td>
-                        <td>{{ user.email }}</td>
-                        <td><span class="badge">{{ user.role }}</span></td>
+    {% if user.role != 'admin' %}
+    <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td><span class="badge">{{ user.role }}</span></td>
 
-                        <td>
-                            <a href="/admin/user/{{ user.id }}" class="btn btn-view">
-                                <i class="fas fa-eye"></i>
-                            </a>
+        <td>
+            <a href="/admin/user/{{ user.id }}" class="btn btn-view">
+                <i class="fas fa-eye"></i>
+            </a>
 
-                            {% if user.role != 'admin' %}
-                            <form id="delete-form-{{ user.id }}" action="/admin/delete_user/{{ user.id }}" method="post" style="display:inline;">
-                                <button type="button" class="btn btn-delete"
-                                    onclick="openDeleteModal('{{ user.id }}', '{{ user.name }}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
+            <form id="delete-form-{{ user.id }}" action="/admin/delete_user/{{ user.id }}" method="post" style="display:inline;">
+                <button type="button" class="btn btn-delete"
+                    onclick="openDeleteModal('{{ user.id }}', '{{ user.name }}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+        </td>
+    </tr>
+    {% endif %}
+{% endfor %}
                 </tbody>
 
             </table>
@@ -656,4 +654,3 @@ document.addEventListener('keydown', function(e) {
 
 </body>
 </html>
-
