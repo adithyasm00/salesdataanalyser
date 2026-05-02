@@ -138,13 +138,7 @@
                
                        <div class="visuals-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 25px;">
     
-    <div class="card chart-container" style="grid-column: span 2; padding: 25px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h4 style="font-weight: 800; color: #1e293b; margin: 0;">Performance Analytics</h4>
-            <span style="background: #eef2ff; color: #6366f1; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">LIVE DATA</span>
-        </div>
-        <img src="{{ growth_chart }}" style="width:100%; height:auto; filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04));">
-    </div>
+    
 
     <div class="card chart-container" style="padding: 20px;">
         <h4 style="font-weight: 800; color: #1e293b; margin-bottom: 20px;">Top Products Revenue</h4>
@@ -158,20 +152,19 @@
                     
                 <section class="card table-card" style="margin-top: 25px;">
                     <h3>Recent Transactions</h3><br>
-                    
-                    <div class="table-responsive">
-                        
-    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                
+    <div class="table-actions">
+        <a href="/export_csv" class="download-btn">
+            <i class="fas fa-file-download"></i> Download CSV Report
+        </a>
 
+        <button type="button" class="add-sale-btn"
+            onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <i class="fas fa-plus"></i> Add New Sale
+        </button>
+    </div>
    
-    <a href="/export_csv" class="download-btn">
-        <i class="fas fa-file-download"></i> Download CSV Report
-    </a>
-    <button type="button" class="add-sale-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-        <i class="fas fa-plus"></i> Add New Sale
-    </button>
-
-</div>
+                    <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
