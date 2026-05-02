@@ -186,7 +186,6 @@ def generate_pie_chart_base64(labels, values, title='Market Share'):
         color='#94a3b8'
     )
 
-   
     ax.set_title(
         title.upper(),
         pad=15,
@@ -194,14 +193,13 @@ def generate_pie_chart_base64(labels, values, title='Market Share'):
         fontweight='900',
         color='#0f172a'
     )
-
     ax.axis('equal')
     plt.tight_layout()
 
     return fig_to_base64(fig)
 
 def generate_growth_chart_base64(months, revenue, profit, title="Performance Metrics"):
-    fig, ax = plt.subplots(figsize=(22, 5))
+    fig, ax = plt.subplots(figsize=(10, 4))
     
     
     ax.plot(months, revenue, color='#6366f1', marker='o', linewidth=4, 
@@ -605,7 +603,7 @@ def not_found(e):
 
 @app.route('/admin-logout')
 def admin_logout():
-    session.clear()   # clears EVERYTHING
+    session.clear()   
     flash('Admin logged out successfully.', 'success')
     return redirect(url_for('login'))
 
@@ -617,7 +615,7 @@ def admin_dashboard():
 
     conn = get_db_connection()
 
-    users = conn.execute('SELECT id, name, email, role FROM users ORDER BY id').fetchall()
+    users = conn.execute('SELECT id, name, email, role FROM users WHERE role != "admin" ORDER BY id').fetchall()
     total_sales = conn.execute('SELECT COUNT(*) AS c FROM sales').fetchone()['c']
     total_users = conn.execute('SELECT COUNT(*) AS c FROM users').fetchone()['c']
     total_revenue = conn.execute('SELECT COALESCE(SUM(total),0) AS t FROM sales').fetchone()['t']
@@ -689,7 +687,8 @@ def admin_delete_user(user_id):
     conn.commit()
     conn.close()
 
-    return jsonify({'success': True})
+    flash('User deleted successfully!', 'success')
+    return redirect(url_for('admin_dashboard'))
 
 
 @app.route('/admin/user/<int:user_id>')
