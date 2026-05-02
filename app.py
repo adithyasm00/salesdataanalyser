@@ -33,7 +33,7 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 DATABASE = 'database.db'
 
 
-# ─── DATABASE HELPERS ─────────────────────────────────────────────────────────
+
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
@@ -88,15 +88,13 @@ def init_db():
 
 
 init_db()
-# ─── MODERN MATPLOTLIB CHART HELPERS ─────────────────────────────────────
-# ─── MATPLOTLIB HELPERS ───────────────────────────────────────────────────────
-# Use a clean style base
+
+
 plt.style.use('ggplot') 
 
 
-# ─── MATPLOTLIB HELPERS ───────────────────────────────────────────────────────
 
-  # ─── PREMIUM MODERN CHART HELPERS ─────────────────────────────────────
+  
 
 def fig_to_base64(fig):
     fig.patch.set_facecolor('#ffffff') 
@@ -109,7 +107,7 @@ def fig_to_base64(fig):
 
 def apply_minimal_theme(ax, title):
     """Removes all 'chart junk' for a floating, modern look."""
-    # Clean version without the unsupported argument
+    
     ax.set_title(title.upper(), pad=30, fontsize=14, fontweight='900', color='#0f172a')
     
     for spine in ax.spines.values():
@@ -121,11 +119,11 @@ def apply_minimal_theme(ax, title):
 def generate_bar_chart_base64(labels, values, title='Top Products'):
     fig, ax = plt.subplots(figsize=(12, 7))
     
-    # Use a soft rounded-edge bar simulation via linewidth
+   
     bars = ax.bar(labels, values, color="#294ABE", edgecolor='#4f46e5', 
                   linewidth=1.5, width=0.5, zorder=3, alpha=0.9)
     
-    # Gradient-like effect: add a subtle glow/shadow
+    
     for bar in bars:
         height = bar.get_height()
         ax.text(bar.get_x() + bar.get_width()/2, height + (max(values)*0.02),
@@ -151,7 +149,7 @@ def generate_pie_chart_base64(labels, values, title='Market Share'):
             startangle=90,
             colors=colors,
 
-            radius=0.85,          # bigger + properly centered
+            radius=0.85,          
             pctdistance=0.78,
             labeldistance=1.08,
 
@@ -162,15 +160,14 @@ def generate_pie_chart_base64(labels, values, title='Market Share'):
             }
         )
 
-        # percentage text
+        
         plt.setp(
             autotexts,
-            size=8,
+            size=7,
             weight="bold",
             color="white"
         )
 
-        # category labels
         plt.setp(
             texts,
             size=7,
@@ -178,7 +175,7 @@ def generate_pie_chart_base64(labels, values, title='Market Share'):
             color="#334155"
         )
 
-    # center text
+    
     ax.text(
         0, 0,
         "SALES",
@@ -189,7 +186,7 @@ def generate_pie_chart_base64(labels, values, title='Market Share'):
         color='#94a3b8'
     )
 
-    # title
+   
     ax.set_title(
         title.upper(),
         pad=15,
@@ -206,12 +203,12 @@ def generate_pie_chart_base64(labels, values, title='Market Share'):
 def generate_growth_chart_base64(months, revenue, profit, title="Performance Metrics"):
     fig, ax = plt.subplots(figsize=(22, 5))
     
-    # Line 1: Revenue with Gradient Area
+    
     ax.plot(months, revenue, color='#6366f1', marker='o', linewidth=4, 
             label='REVENUE', markersize=12, markerfacecolor='white', markeredgewidth=3, zorder=5)
     ax.fill_between(months, revenue, color='#6366f1', alpha=0.05, zorder=4)
     
-    # Line 2: Profit (dashed for unique distinction)
+    
     ax.plot(months, profit, color='#10b981', marker='s', linewidth=3, linestyle='--',
             label='PROFIT', markersize=8, markerfacecolor='white', markeredgewidth=2, zorder=6)
     
@@ -221,23 +218,16 @@ def generate_growth_chart_base64(months, revenue, profit, title="Performance Met
     plt.tight_layout()
     return fig_to_base64(fig)
 
-
-
-# ─── SESSION START ────────────────────────────────────────────────────────────
 def _start_session(user):
     session.permanent = True
     session['user_id'] = user['id']
     session['name'] = user['name']
     session['role'] = user['role']
 
-
-# ─── HOME ─────────────────────────────────────────────────────────────────────
 @app.route('/')
 def home():
     return render_template('home.html')
 
-
-# ─── REGISTER ────────────────────────────────────────────────────────────────
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -270,10 +260,12 @@ def register():
     return render_template('register.html')
 
 
-# ─── LOGIN ────────────────────────────────────────────────────────────────────
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session:
+        if session.get('role') == 'admin':
+            return redirect(url_for('admin_dashboard'))
         return redirect(url_for('dashboard'))
 
     if request.method == 'POST':
@@ -297,16 +289,12 @@ def login():
 
     return render_template('login.html')
 
-
-# ─── LOGOUT ───────────────────────────────────────────────────────────────────
 @app.route('/logout')
 def logout():
     session.clear()
     flash('You have been logged out.', 'success')
     return redirect(url_for('home'))
 
-
-# ─── DASHBOARD ────────────────────────────────────────────────────────────────
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if 'user_id' not in session:
@@ -346,14 +334,14 @@ def dashboard():
         conn.close()
         return redirect(url_for('dashboard'))
 
-    # GET logic starts here
+    
     rows = conn.execute('SELECT * FROM sales WHERE user_id = ? ORDER BY date DESC', (user_id,)).fetchall()
     conn.close()
 
     sales_data = [dict(r) for r in rows]
     df = pd.DataFrame(sales_data)
 
-    # Initialize defaults
+    
     stats = {'total_revenue': 0, 'top_product': 'N/A', 'count': 0, 'profit': 0}
     monthly_profit_data = []
     growth_chart_url = ""
@@ -361,7 +349,7 @@ def dashboard():
     product_chart_url = ""
 
     if not df.empty:
-        # 1. Data Processing
+       
         df['total'] = pd.to_numeric(df['total'], errors='coerce').fillna(0)
         df['rate'] = pd.to_numeric(df['rate'], errors='coerce').fillna(0)
         df['quantity'] = pd.to_numeric(df['quantity'], errors='coerce').fillna(0)
@@ -370,7 +358,7 @@ def dashboard():
         df['date_dt'] = pd.to_datetime(df['date'], errors='coerce')
         df['month'] = df['date_dt'].dt.strftime('%Y-%m')
 
-        # 2. Statistics
+        
         stats = {
             'total_revenue': round(float(df['total'].sum()), 2),
             'top_product': df.groupby('product')['total'].sum().idxmax(),
@@ -378,7 +366,7 @@ def dashboard():
             'profit': round(float(df['profit'].sum()), 2)
         }
 
-        # 3. Monthly Data for table
+        
         monthly_profit_data = (
             df.groupby('month')
             .agg({'total': 'sum', 'profit': 'sum'})
@@ -387,23 +375,22 @@ def dashboard():
             .sort_values('month', ascending=False)
             .to_dict('records')
         )
-        # Replace your section #4 (Generate Charts) with this:
-       # 4. Generate Charts
+        
         df_sorted = df.sort_values('month')
         monthly_growth = df_sorted.groupby('month').agg({'total': 'sum', 'profit': 'sum'}).reset_index()
 
-        # Ensure this is indented exactly 8 spaces (2 tabs) to stay inside the 'if not df.empty:' block
+        
         growth_chart_url = generate_growth_chart_base64(
             monthly_growth['month'].tolist(), 
             monthly_growth['total'].tolist(), 
             monthly_growth['profit'].tolist()
         )
 
-        # Pie Chart
+        
         cat_counts = df['category'].value_counts()
         category_chart_url = generate_pie_chart_base64(cat_counts.index.tolist(), cat_counts.values.tolist(), "Sales by Category")
 
-        # Bar Chart
+        
         prod_revenue = df.groupby('product')['total'].sum().sort_values(ascending=False).head(10)
         product_chart_url = generate_bar_chart_base64(prod_revenue.index.tolist(), prod_revenue.values.tolist(), "Top Products")
 
@@ -417,7 +404,7 @@ def dashboard():
         category_chart=category_chart_url,
         product_chart=product_chart_url
     )
-# ─── EXPORT CSV ───────────────────────────────────────────────────────────────
+
 @app.route('/export_csv')
 def export_csv():
     if 'user_id' not in session:
@@ -466,8 +453,6 @@ def export_csv():
     response.headers['Content-Type'] = 'text/csv'
     return response
 
-
-# ─── DELETE SALE ──────────────────────────────────────────────────────────────
 @app.route('/delete_sale/<int:id>', methods=['POST'])
 def delete_sale(id):
     if 'user_id' not in session:
@@ -487,8 +472,6 @@ def delete_sale(id):
     flash('Record deleted.', 'success')
     return redirect(url_for('dashboard'))
 
-
-# ─── EDIT SALE ────────────────────────────────────────────────────────────────
 @app.route('/edit/<int:id>', methods=['POST'])
 def edit_sale(id):
     if 'user_id' not in session:
@@ -533,8 +516,6 @@ def edit_sale(id):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-
-# ─── PROFILE ──────────────────────────────────────────────────────────────────
 @app.route('/profile')
 def profile():
     if 'user_id' not in session:
@@ -553,8 +534,6 @@ def profile():
 
     return render_template('profile.html', user_email=user['email'])
 
-
-# ─── UPDATE PROFILE ───────────────────────────────────────────────────────────
 @app.route('/update_profile', methods=['POST'])
 def update_profile():
     if 'user_id' not in session:
@@ -586,7 +565,7 @@ def update_profile():
     return redirect(url_for('profile'))
 
 
-# ─── CHANGE PASSWORD ─────────────────────────────────────────────────────────
+
 @app.route('/change_password', methods=['POST'])
 def change_password():
     if 'user_id' not in session:
@@ -619,35 +598,22 @@ def change_password():
     return redirect(url_for('profile'))
 
 
-# ─── ERROR HANDLER ────────────────────────────────────────────────────────────
+
 @app.errorhandler(404)
 def not_found(e):
     return render_template('home.html'), 404
 
-
-# ─── ADMIN PANEL ──────────────────────────────────────────────────────────────
-@app.route('/admin-login', methods=['GET', 'POST'])
-def admin_login():
-    if request.method == 'POST':
-        if request.form['username'] == 'admin' and request.form['password'] == '1234567890':
-            session['admin'] = True
-            session['role'] = 'admin'
-            return redirect(url_for('admin_dashboard'))
-        flash('Access Denied', 'danger')
-
-    return render_template('admin-login.html')
-
-
 @app.route('/admin-logout')
 def admin_logout():
-    session.pop('admin', None)
-    return redirect(url_for('home'))
+    session.clear()   # clears EVERYTHING
+    flash('Admin logged out successfully.', 'success')
+    return redirect(url_for('login'))
 
 
 @app.route('/admin-panel')
 def admin_dashboard():
-    if not session.get('admin'):
-        return redirect(url_for('admin_login'))
+    if session.get('role') != 'admin':
+      return redirect(url_for('login'))
 
     conn = get_db_connection()
 
@@ -691,11 +657,9 @@ def admin_dashboard():
         bar_chart=bar_chart,
         pie_chart=pie_chart
     )
-
-
 @app.route('/admin/users')
 def admin_users():
-    if not session.get('admin'):
+    if session.get('role') != 'admin':
         return jsonify({'error': 'Unauthorized'}), 403
 
     conn = get_db_connection()
@@ -706,7 +670,7 @@ def admin_users():
 
 @app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
 def admin_delete_user(user_id):
-    if not session.get('admin'):
+    if session.get('role') != 'admin':
         return jsonify({'error': 'Unauthorized'}), 403
 
     conn = get_db_connection()
@@ -730,8 +694,8 @@ def admin_delete_user(user_id):
 
 @app.route('/admin/user/<int:user_id>')
 def admin_user_details(user_id):
-    if not session.get('admin'):
-        return redirect(url_for('admin_login'))
+    if session.get('role') != 'admin':
+       return redirect(url_for('login'))
 
     conn = get_db_connection()
 
@@ -858,8 +822,6 @@ def admin_change_password():
     flash("Password updated successfully!", "success")
     return redirect(url_for('profile'))
 
-
-# ─── RUN ──────────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
     app.run(debug=True)
     
